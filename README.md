@@ -2,4 +2,4 @@
 Use this tool to conduct your initial audits, Developed by Convex Corporate.
 
 To start using please use the following link:
-https://github.com/mbconvex/seo-intial-audit-calculator.git
+https://mbconvex.github.io/seo-intial-audit-calculator/
