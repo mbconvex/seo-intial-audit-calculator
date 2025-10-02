@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive Initial Audit Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb; /* Tailwind gray-50 */
+        }
+        .grade-display {
+            -webkit-text-stroke: 2px #000;
+            color: transparent;
+            text-shadow: 4px 4px 0px #e5e7eb; /* Tailwind gray-200 */
+        }
+        .grade-A { color: #22c55e; -webkit-text-stroke-color: #166534; } /* Green */
+        .grade-B { color: #3b82f6; -webkit-text-stroke-color: #1e40af; } /* Blue */
+        .grade-C { color: #eab308; -webkit-text-stroke-color: #854d0e; } /* Yellow */
+        .grade-D { color: #f97316; -webkit-text-stroke-color: #9a3412; } /* Orange */
+        .grade-F { color: #d40000; -webkit-text-stroke-color: #8b0000; } /* Custom Red */
+
+        .btn-custom-red {
+            background-color: #d40000;
+            color: white;
+        }
+        .btn-custom-red:hover {
+            background-color: #a30000;
+        }
+        .input-field {
+            width: 100%;
+            background-color: #f3f4f6;
+            color: #111827;
+            border-radius: 0.375rem;
+            border: 1px solid #d1d5db;
+            padding: 0.625rem;
+            transition: all 0.2s;
+        }
+        .input-field:focus {
+            --tw-ring-color: #d40000;
+            border-color: #d40000;
+            outline: 2px solid transparent;
+            outline-offset: 2px;
+            box-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+        }
+        .remove-btn {
+            background-color: #fee2e2; color: #b91c1c;
+        }
+        .remove-btn:hover {
+            background-color: #fecaca; color: #991b1b;
+        }
+    </style>
+</head>
+<body class="text-gray-800 flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-4xl bg-white rounded-2xl shadow-xl p-8 space-y-8 border border-gray-200">
+        <!-- Header -->
+        <div class="text-center">
+            <h1 class="text-4xl font-bold text-gray-900 tracking-tight">Comprehensive SEO Audit Calculator</h1>
+            <p class="text-gray-600 mt-2">Input the raw values from your tests to get a detailed performance grade.</p>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- CSCT Section -->
+            <div class="space-y-4 p-6 bg-gray-50 rounded-lg border border-gray-200">
+                <div class="text-center">
+                    <h2 class="text-xl font-bold text-gray-900">1. Visibility Test (CSCT)</h2>
+                    <p class="text-sm text-gray-500">Enter Google rank for main keywords.</p>
+                </div>
+                <div id="csct-inputs" class="space-y-3">
+                    <!-- Keyword inputs will be generated here -->
+                </div>
+                 <button id="add-keyword-btn" class="w-full mt-3 py-2 px-4 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md transition">
+                    + Add Keyword
+                </button>
+                <div class="text-center bg-white p-3 rounded-md border border-gray-200">
+                    <p class="text-sm text-gray-500 font-medium">Overall Visibility Grade</p>
+                    <p id="csct-overall-grade" class="text-3xl font-extrabold text-gray-800">-</p>
+                </div>
+            </div>
+
+            <!-- CMWPT Section -->
+            <div class="space-y-4 p-6 bg-gray-50 rounded-lg border border-gray-200">
+                <div class="text-center">
+                    <h2 class="text-xl font-bold text-gray-900">2. Mobile Test (CMWPT)</h2>
+                    <p class="text-sm text-gray-500">Select the result for each metric.</p>
+                </div>
+                <div id="cmwpt-inputs" class="space-y-3">
+                    <!-- Mobile test inputs will be generated here -->
+                </div>
+                <div class="text-center bg-white p-3 rounded-md border border-gray-200">
+                    <p class="text-sm text-gray-500 font-medium">Mobile Performance Grade</p>
+                    <p id="cmwpt-overall-grade" class="text-3xl font-extrabold text-gray-800">-</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Calculate Button -->
+        <div class="pt-4">
+            <button id="calculate-btn" class="w-full btn-custom-red font-bold py-4 px-4 rounded-lg transition-all duration-200 text-xl">
+                Calculate Total Initial Audit Grade
+            </button>
+        </div>
+
+        <!-- Results Section (Initially Hidden) -->
+        <div id="results-container" class="hidden pt-6 border-t border-gray-200">
+             <div class="mt-6 bg-gray-100 p-6 rounded-lg text-center">
+                <h2 class="text-2xl font-bold text-center text-gray-900 mb-6">Final Audit Result Analysis</h2>
+                <div class="flex flex-col md:flex-row items-center justify-center md:space-x-12">
+                     <div class="mb-4 md:mb-0">
+                        <p class="text-sm text-gray-500 font-medium">Final Grade</p>
+                        <div id="final-grade-display" class="grade-display text-9xl font-black">F</div>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium mb-2">Calculation</p>
+                        <div class="text-left text-sm space-y-1 bg-white p-3 rounded-md border border-gray-200">
+                            <p id="csct-score-breakdown">CSCT Score (F): <span class="font-bold text-gray-900">20</span> / 100</p>
+                            <p id="cmwpt-score-breakdown">CMWPT Score (B): <span class="font-bold text-gray-900">80</span> / 100</p>
+                            <p id="average-score-breakdown" class="border-t border-gray-300 pt-1 mt-1">Average Score: <span class="font-bold text-gray-900">50</span> / 100</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="pt-4 mt-4 border-t border-gray-200">
+                     <p id="interpretation-text" class="text-gray-700 max-w-xl mx-auto"></p>
+                </div>
+                <div class="mt-6 flex flex-col sm:flex-row justify-center items-center gap-4">
+                    <button id="export-full-report-btn" class="w-full sm:w-auto btn-custom-red font-bold py-2 px-6 rounded-lg transition-all duration-200 text-base">
+                        Export Full Report
+                    </button>
+                    <div class="flex gap-4">
+                        <button id="export-csct-btn" class="py-2 px-4 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md transition">
+                            Export CSCT Only
+                        </button>
+                        <button id="export-cmwpt-btn" class="py-2 px-4 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md transition">
+                            Export CMWPT Only
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===================================================================================
+        // --- DATA & CONFIGURATION ---
+        // This section holds all the initial data and configuration constants for the app.
+        // ===================================================================================
+
+        // This maps the final letter grade for the CSCT test to a numerical score out of 100.
+        // This is used for calculating the final weighted average score.
+        const CSCT_GRADE_TO_SCORE = { 'A': 95, 'B': 80, 'C': 60, 'D': 40, 'F': 20 };
+
+        // This array defines the initial placeholder rows for the visibility test.
+        // It starts empty so the user can input their own keywords.
+        const INITIAL_KEYWORDS = [
+            { name: "", page: "", pos: "" },
+            { name: "", page: "", pos: "" },
+            { name: "", page: "", pos: "" },
+            { name: "", page: "", pos: "" }
+        ];
+        
+        // This array defines the metrics for the mobile performance test (CMWPT).
+        // Each object contains the ID, a user-friendly label, and the scoring options.
+        const CMWPT_METRICS = [
+            { id: 'pagespeed', label: '1. Google PageSpeed Score', options: [ {text: '0-49 (Poor)', value: 0}, {text: '50-89 (Needs Impr.)', value: 15, selected: true}, {text: '90-100 (Good)', value: 30} ] },
+            { id: 'phone', label: '2. 3-Second Phone # Test', options: [ {text: 'No', value: 0}, {text: 'Yes', value: 35, selected: true} ] },
+            { id: 'headline', label: '3. Headline Clarity Test', options: [ {text: 'No', value: 0}, {text: 'Yes', value: 15, selected: true} ] },
+            { id: 'readability', label: '4. Readability Test', options: [ {text: 'No', value: 0}, {text: 'Yes', value: 10, selected: true} ] },
+            { id: 'services', label: '5. Service Visibility Test', options: [ {text: 'No', value: 0, selected: true}, {text: 'Yes', value: 10} ] }
+        ];
+
+        // ===================================================================================
+        // --- DOM ELEMENT SELECTORS ---
+        // Caching references to DOM elements for performance and cleaner code.
+        // ===================================================================================
+        const csctInputsContainer = document.getElementById('csct-inputs');
+        const addKeywordBtn = document.getElementById('add-keyword-btn');
+        const cmwptInputsContainer = document.getElementById('cmwpt-inputs');
+        const calculateBtn = document.getElementById('calculate-btn');
+        const resultsContainer = document.getElementById('results-container');
+        const csctOverallGradeEl = document.getElementById('csct-overall-grade');
+        const cmwptOverallGradeEl = document.getElementById('cmwpt-overall-grade');
+        const finalGradeDisplay = document.getElementById('final-grade-display');
+        const csctScoreBreakdown = document.getElementById('csct-score-breakdown');
+        const cmwptScoreBreakdown = document.getElementById('cmwpt-score-breakdown');
+        const averageScoreBreakdown = document.getElementById('average-score-breakdown');
+        const interpretationText = document.getElementById('interpretation-text');
+        const exportCsctBtn = document.getElementById('export-csct-btn');
+        const exportCmwptBtn = document.getElementById('export-cmwpt-btn');
+        const exportFullReportBtn = document.getElementById('export-full-report-btn');
+
+
+        // ===================================================================================
+        // --- INITIALIZATION ---
+        // This code runs once the webpage has fully loaded.
+        // ===================================================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            renderInitialCSCTInputs();
+            renderCMWPTInputs();
+            addEventListeners();
+            updateCSCTGrade();
+            updateCMWPTGrade();
+        });
+
+        // ===================================================================================
+        // --- RENDER FUNCTIONS ---
+        // These functions are responsible for creating and displaying HTML content.
+        // ===================================================================================
+
+        /**
+         * Renders the initial set of empty keyword rows for the CSCT test.
+         */
+        function renderInitialCSCTInputs() {
+            INITIAL_KEYWORDS.forEach(kw => createKeywordRow(kw.name, kw.page, kw.pos));
+        }
+        
+        /**
+         * Creates a single new HTML row for a keyword in the CSCT section.
+         * @param {string} name - The initial name of the keyword.
+         * @param {string|number} page - The initial page number.
+         * @param {string|number} pos - The initial position on the page.
+         */
+        function createKeywordRow(name = "", page = "", pos = "") {
+            const row = document.createElement('div');
+            row.className = 'keyword-row p-2 border bg-white rounded-md';
+            row.innerHTML = `
+                <div class="grid grid-cols-12 gap-2 items-center">
+                    <input type="text" value="${name}" class="kw-name input-field col-span-5" placeholder="Enter Keyword">
+                    <input type="number" value="${page}" class="kw-page input-field text-center col-span-2" placeholder="Page">
+                    <input type="number" value="${pos}" class="kw-pos input-field text-center col-span-2" placeholder="Pos">
+                    <div class="kw-grade text-center font-bold text-lg col-span-1">-</div>
+                    <button class="remove-kw-btn col-span-2 h-full w-full flex items-center justify-center text-sm font-bold rounded remove-btn transition-colors">X</button>
+                </div>
+            `;
+            csctInputsContainer.appendChild(row);
+        }
+
+        /**
+         * Renders the select dropdowns for the CMWPT mobile test section.
+         */
+        function renderCMWPTInputs() {
+            let html = '';
+            CMWPT_METRICS.forEach(metric => {
+                html += `
+                    <div class="grid grid-cols-2 gap-2 items-center">
+                        <label for="${metric.id}" class="text-sm font-medium text-gray-700">${metric.label}</label>
+                        <select id="${metric.id}" class="input-field">
+                            ${metric.options.map(opt => `<option value="${opt.value}" ${opt.selected ? 'selected' : ''}>${opt.text}</option>`).join('')}
+                        </select>
+                    </div>
+                `;
+            });
+            cmwptInputsContainer.innerHTML = html;
+        }
+
+        // ===================================================================================
+        // --- EVENT HANDLING ---
+        // This section sets up all the event listeners for user interaction.
+        // ===================================================================================
+        function addEventListeners() {
+            // Recalculate CSCT grade on any input change.
+            csctInputsContainer.addEventListener('input', updateCSCTGrade);
+            
+            // Handle clicks on the remove button for keywords.
+            csctInputsContainer.addEventListener('click', (e) => {
+                if (e.target.classList.contains('remove-kw-btn')) {
+                    e.target.closest('.keyword-row').remove();
+                    updateCSCTGrade();
+                }
+            });
+
+            // Add a new keyword row when the button is clicked.
+            addKeywordBtn.addEventListener('click', () => {
+                createKeywordRow();
+                updateCSCTGrade();
+            });
+
+            // Recalculate CMWPT grade when a dropdown selection changes.
+            cmwptInputsContainer.addEventListener('change', updateCMWPTGrade);
+
+            // Calculate and display the final results.
+            calculateBtn.addEventListener('click', displayFinalResults);
+            
+            // Export results to clipboard
+            exportCsctBtn.addEventListener('click', exportCSCTResults);
+            exportCmwptBtn.addEventListener('click', exportCMWPTResults);
+            exportFullReportBtn.addEventListener('click', exportFullReport);
+        }
+
+        // ===================================================================================
+        // --- CALCULATION & UPDATE LOGIC ---
+        // Core logic for calculations and updating the UI.
+        // ===================================================================================
+
+        /**
+         * Converts a numerical visibility score into a letter grade (A-F).
+         * @param {number} score - The visibility score.
+         * @returns {string} The corresponding letter grade.
+         */
+        function getScoreGrade(score) {
+            if (score <= 14) return 'A';
+            if (score <= 20) return 'B';
+            if (score <= 30) return 'C';
+            if (score <= 50) return 'D';
+            return 'F';
+        }
+        
+        /**
+         * Updates the CSCT section by calculating the score and grade for each keyword and the overall grade.
+         * @returns {object} An object containing the overall grade and numerical score for the CSCT test.
+         */
+        function updateCSCTGrade() {
+            const keywordRows = csctInputsContainer.querySelectorAll('.keyword-row');
+            if (keywordRows.length === 0) {
+                 csctOverallGradeEl.textContent = 'N/A';
+                 return { grade: 'F', score: 0 }; // Return default if no keywords
+            }
+            
+            let scores = [];
+
+            keywordRows.forEach(row => {
+                const pageInput = row.querySelector('.kw-page');
+                const posInput = row.querySelector('.kw-pos');
+                const gradeEl = row.querySelector('.kw-grade');
+                
+                const page = parseInt(pageInput.value) || 10;
+                const pos = parseInt(posInput.value) || 10;
+                
+                const score = (page * 10) + pos;
+                scores.push(score);
+                gradeEl.textContent = getScoreGrade(score);
+            });
+
+            const averageScore = scores.reduce((a, b) => a + b, 0) / scores.length;
+            const overallGrade = getScoreGrade(averageScore);
+            csctOverallGradeEl.textContent = overallGrade;
+            return { grade: overallGrade, score: CSCT_GRADE_TO_SCORE[overallGrade] };
+        }
+
+        /**
+         * Updates the CMWPT section by calculating the total score and overall grade.
+         * @returns {object} An object containing the grade and numerical score for the CMWPT test.
+         */
+        function updateCMWPTGrade() {
+            let totalScore = 0;
+            CMWPT_METRICS.forEach(metric => {
+                totalScore += parseInt(document.getElementById(metric.id).value);
+            });
+            
+            let grade = 'F';
+            if (totalScore >= 90) grade = 'A';
+            else if (totalScore >= 70) grade = 'B';
+            else if (totalScore >= 50) grade = 'C';
+            
+            cmwptOverallGradeEl.textContent = `${grade} (${totalScore}/100)`;
+            return { grade, score: totalScore };
+        }
+        
+        /**
+         * Calculates the final overall grade from both tests and displays the full results section.
+         */
+        function displayFinalResults() {
+            const csctResult = updateCSCTGrade();
+            const cmwptResult = updateCMWPTGrade();
+
+            const finalAverage = (csctResult.score + cmwptResult.score) / 2;
+            
+            let finalGrade = 'F';
+            if (finalAverage >= 90) finalGrade = 'A';
+            else if (finalAverage >= 80) finalGrade = 'B';
+            else if (finalAverage >= 70) finalGrade = 'C';
+            else if (finalAverage >= 60) finalGrade = 'D';
+
+            // Update the results display with the calculated values
+            csctScoreBreakdown.innerHTML = `CSCT Score (${csctResult.grade}): <span class="font-bold text-gray-900">${csctResult.score}</span> / 100`;
+            cmwptScoreBreakdown.innerHTML = `CMWPT Score (${cmwptResult.grade}): <span class="font-bold text-gray-900">${cmwptResult.score}</span> / 100`;
+            averageScoreBreakdown.innerHTML = `Average Score: <span class="font-bold text-gray-900">${finalAverage.toFixed(0)}</span> / 100`;
+
+            finalGradeDisplay.textContent = finalGrade;
+            finalGradeDisplay.className = 'grade-display text-9xl font-black'; // Reset classes
+            finalGradeDisplay.classList.add(`grade-${finalGrade}`);
+
+            interpretationText.textContent = getInterpretation(finalGrade);
+            resultsContainer.classList.remove('hidden');
+        }
+
+        /**
+         * Provides a text interpretation based on the final grade.
+         * @param {string} grade - The final calculated grade.
+         * @returns {string} The interpretation text.
+         */
+        function getInterpretation(grade) {
+            switch(grade) {
+                case 'A': return "Excellent Performance. Your site is highly visible and provides a great mobile experience. The focus should be on defending your position and conversion rate optimization.";
+                case 'B': return "Good Performance. You have a solid foundation, but there are clear areas for improvement in either visibility or mobile usability that are holding you back from market leadership.";
+                case 'C': return "Average Performance. Your online presence is functional but not competitive. Significant improvements are needed in both visibility and mobile experience to see meaningful business growth.";
+                case 'D': return "Poor Performance. Your online presence has significant issues, likely in both visibility and mobile usability. A foundational strategy is needed to become competitive.";
+                case 'F': return "Critical Weakness. This grade indicates a major failure in at least one core area, most likely visibility. Even with a good mobile site, your business is effectively invisible. Urgent action is required.";
+                default: return "";
+            }
+        }
+
+        // ===================================================================================
+        // --- EXPORT FUNCTIONALITY ---
+        // Logic for exporting the audit results to the clipboard.
+        // ===================================================================================
+
+        /**
+         * Generates the HTML for the CSCT results table.
+         * @returns {string} The HTML string for the CSCT table.
+         */
+        function generateCSCTExportHTML() {
+            const csctResult = updateCSCTGrade();
+            let csctRows = '';
+            csctInputsContainer.querySelectorAll('.keyword-row').forEach(row => {
+                const name = row.querySelector('.kw-name').value || '(No Keyword)';
+                const page = row.querySelector('.kw-page').value || 'N/A';
+                const pos = row.querySelector('.kw-pos').value || 'N/A';
+                const grade = row.querySelector('.kw-grade').textContent;
+                csctRows += `<tr style="background-color: #ffffff;"><td style="border: 1px solid #e5e7eb; text-align: left; padding: 10px;">${name}</td><td style="border: 1px solid #e5e7eb; text-align: center; padding: 10px;">${page}</td><td style="border: 1px solid #e5e7eb; text-align: center; padding: 10px;">${pos}</td><td style="border: 1px solid #e5e7eb; text-align: center; padding: 10px; font-weight: bold;">${grade}</td></tr>`;
+            });
+
+            return `
+                <table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 11pt; border: 1px solid #e5e7eb;">
+                    <caption style="font-size: 16pt; font-weight: bold; color: #ffffff; background-color: #d40000; padding: 12px; text-align: left;">Convex Stranded Customer Test Results</caption>
+                    <thead style="background-color: #f3f4f6;">
+                        <tr>
+                            <th style="border: 1px solid #e5e7eb; text-align: left; padding: 10px; font-weight: 600;">Search Term</th>
+                            <th style="border: 1px solid #e5e7eb; text-align: center; padding: 10px; font-weight: 600;">Page Number</th>
+                            <th style="border: 1px solid #e5e7eb; text-align: center; padding: 10px; font-weight: 600;">Page Ranking</th>
+                            <th style="border: 1px solid #e5e7eb; text-align: center; padding: 10px; font-weight: 600;">Grade</th>
+                        </tr>
+                    </thead>
+                    <tbody>${csctRows}</tbody>
+                    <tfoot>
+                        <tr style="background-color: #ffffff;">
+                            <td colspan="3" style="border: 1px solid #e5e7eb; text-align: left; padding: 12px; font-weight: bold; text-transform: uppercase;">Weighted Grade</td>
+                            <td style="border: 1px solid #e5e7eb; text-align: center; padding: 12px; font-weight: bold; color: #d40000; font-size: 14pt;">${csctResult.grade}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            `;
+        }
+        
+        /**
+         * Generates the HTML for the CMWPT results table.
+         * @returns {string} The HTML string for the CMWPT table.
+         */
+        function generateCMWPTExportHTML() {
+            const cmwptResult = updateCMWPTGrade();
+            let cmwptRows = '';
+            CMWPT_METRICS.forEach(metric => {
+                const select = document.getElementById(metric.id);
+                const selectedText = select.options[select.selectedIndex].text;
+                const score = select.value;
+                cmwptRows += `<tr style="background-color: #ffffff;"><td style="border: 1px solid #e5e7eb; text-align: left; padding: 10px;">${metric.label}</td><td style="border: 1px solid #e5e7eb; text-align: left; padding: 10px;">${selectedText}</td><td style="border: 1px solid #e5e7eb; text-align: center; padding: 10px; font-weight: bold;">${score} pts</td></tr>`;
+            });
+
+             return `
+                <table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 11pt; border: 1px solid #e5e7eb;">
+                    <caption style="font-size: 16pt; font-weight: bold; color: #ffffff; background-color: #d40000; padding: 12px; text-align: left;">Mobile Website Performance Test Results</caption>
+                    <thead style="background-color: #f3f4f6;">
+                        <tr>
+                            <th style="border: 1px solid #e5e7eb; text-align: left; padding: 10px; font-weight: 600;">Metric</th>
+                            <th style="border: 1px solid #e5e7eb; text-align: left; padding: 10px; font-weight: 600;">Result</th>
+                            <th style="border: 1px solid #e5e7eb; text-align: center; padding: 10px; font-weight: 600;">Points</th>
+                        </tr>
+                    </thead>
+                    <tbody>${cmwptRows}</tbody>
+                    <tfoot>
+                        <tr style="background-color: #ffffff;">
+                            <td colspan="2" style="border: 1px solid #e5e7eb; text-align: left; padding: 12px; font-weight: bold; text-transform: uppercase;">Total Score</td>
+                            <td style="border: 1px solid #e5e7eb; text-align: center; padding: 12px; font-weight: bold; color: #d40000; font-size: 14pt;">${cmwptResult.score}/100 (${cmwptResult.grade})</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            `;
+        }
+        
+        /**
+         * Handles the click event for the "Export CSCT Only" button.
+         */
+        function exportCSCTResults() {
+            const htmlToExport = generateCSCTExportHTML();
+            copyHTMLToClipboard(htmlToExport, exportCsctBtn);
+        }
+
+        /**
+         * Handles the click event for the "Export CMWPT Only" button.
+         */
+        function exportCMWPTResults() {
+            const htmlToExport = generateCMWPTExportHTML();
+            copyHTMLToClipboard(htmlToExport, exportCmwptBtn);
+        }
+
+        /**
+         * Gathers all data and exports a full report to the clipboard.
+         */
+        function exportFullReport() {
+            const csctResult = updateCSCTGrade();
+            const cmwptResult = updateCMWPTGrade();
+            const finalAverage = (csctResult.score + cmwptResult.score) / 2;
+            const finalGrade = finalGradeDisplay.textContent;
+
+            const mainTitle = `<h2 style="font-family: Arial, sans-serif; font-size: 18pt; color: #333333; font-weight: bold;">Comprehensive SEO Audit Report</h2><p style="font-family: Arial, sans-serif; font-size: 10pt; color: #555555;">Generated on: ${new Date().toLocaleDateString()}</p><br>`;
+            
+            const csctHTML = generateCSCTExportHTML();
+            const cmwptHTML = generateCMWPTExportHTML();
+
+            const summaryHTML = `
+                <table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 11pt; border: 1px solid #e5e7eb;">
+                    <caption style="font-size: 16pt; font-weight: bold; color: #ffffff; background-color: #d40000; padding: 12px; text-align: left;">Final Grade & Summary</caption>
+                     <thead style="background-color: #f3f4f6;">
+                        <tr>
+                            <th style="border: 1px solid #e5e7eb; text-align: left; padding: 10px; font-weight: 600;">Component</th>
+                            <th style="border: 1px solid #e5e7eb; text-align: center; padding: 10px; font-weight: 600;">Grade</th>
+                            <th style="border: 1px solid #e5e7eb; text-align: center; padding: 10px; font-weight: 600;">Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background-color: #ffffff;"><td style="border: 1px solid #e5e7eb; text-align: left; padding: 10px;">Visibility Score (CSCT)</td><td style="border: 1px solid #e5e7eb; text-align: center; padding: 10px;">${csctResult.grade}</td><td style="border: 1px solid #e5e7eb; text-align: center; padding: 10px;">${csctResult.score}/100</td></tr>
+                        <tr style="background-color: #ffffff;"><td style="border: 1px solid #e5e7eb; text-align: left; padding: 10px;">Mobile Score (CMWPT)</td><td style="border: 1px solid #e5e7eb; text-align: center; padding: 10px;">${cmwptResult.grade}</td><td style="border: 1px solid #e5e7eb; text-align: center; padding: 10px;">${cmwptResult.score}/100</td></tr>
+                        <tr style="font-weight: bold; background-color: #f3f4f6;"><td style="border: 1px solid #e5e7eb; text-align: left; padding: 12px; text-transform: uppercase;">Final Average Score</td><td style="border: 1px solid #e5e7eb; text-align: center; padding: 12px; color: #d40000; font-size: 14pt;">${finalGrade}</td><td style="border: 1px solid #e5e7eb; text-align: center; padding: 12px;">${finalAverage.toFixed(0)}/100</td></tr>
+                    </tbody>
+                </table>
+            `;
+
+            const fullHTML = mainTitle + csctHTML + "<br>" + cmwptHTML + "<br>" + summaryHTML;
+            copyHTMLToClipboard(fullHTML, exportFullReportBtn);
+        }
+
+        /**
+         * Copies a string of HTML to the user's clipboard and provides feedback on the button.
+         * @param {string} html - The HTML content to copy.
+         * @param {HTMLElement} buttonElement - The button that was clicked.
+         */
+        function copyHTMLToClipboard(html, buttonElement) {
+            const container = document.createElement('div');
+            container.innerHTML = html;
+            container.style.position = 'fixed';
+            container.style.pointerEvents = 'none';
+            container.style.opacity = '0';
+            document.body.appendChild(container);
+
+            window.getSelection().removeAllRanges();
+            const range = document.createRange();
+            range.selectNode(container);
+            window.getSelection().addRange(range);
+
+            document.execCommand('copy');
+            document.body.removeChild(container);
+            
+            // Provide user feedback
+            const originalText = buttonElement.textContent;
+            buttonElement.textContent = 'Copied!';
+            buttonElement.disabled = true;
+            setTimeout(() => {
+                buttonElement.textContent = originalText;
+                buttonElement.disabled = false;
+            }, 2500);
+        }
+
+    </script>
+</body>
+</html>
+
